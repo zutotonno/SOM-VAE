@@ -58,20 +58,20 @@ class SOMAE:
         return encoded_data
     
     def compute_embeddings(self):
-    latent_representation = self.compute_encodings
-    encoded_data_reshaped = tf.reshape(latent_representation,[-1, self.som_dim[0]*self.som_dim[1], self.latent_dim])
-    squared_distances = tf.squared_difference(encoded_data_reshaped,self.som)
-    component_sum = tf.reduce_sum(squared_distances, axis=-1)
-    min_idx_reshaped = tf.argmin(component_sum, -1)
-    # delta_w = tf.zeros([self.som_dim[0]*self.som_dim[1], self.latent_dim])
-    # delta_w[min_idx_reshaped] = squared_distances*self.learning_rate
-    nearest_neurons = tf.gather(self.som,min_idx_reshaped)
-    # self.som = tf.add(self.som, delta_w)
-    return nearest_neurons
-    # min_idx_reshaped = tf.argmin(component_sum, -1)
-    # # min_idx = tf.unravel_index(min_idx_reshaped, [self.som_dim[0],self.som_dim[1]])
-    # nearest_neuron = tf.gather(self.som,min_idx_reshaped)
-    # return nearest_neuron, min_idx_reshaped
+        latent_representation = self.compute_encodings
+        encoded_data_reshaped = tf.reshape(latent_representation,[-1, self.som_dim[0]*self.som_dim[1], self.latent_dim])
+        squared_distances = tf.squared_difference(encoded_data_reshaped,self.som)
+        component_sum = tf.reduce_sum(squared_distances, axis=-1)
+        min_idx_reshaped = tf.argmin(component_sum, -1)
+        # delta_w = tf.zeros([self.som_dim[0]*self.som_dim[1], self.latent_dim])
+        # delta_w[min_idx_reshaped] = squared_distances*self.learning_rate
+        nearest_neurons = tf.gather(self.som,min_idx_reshaped)
+        # self.som = tf.add(self.som, delta_w)
+        return nearest_neurons
+        # min_idx_reshaped = tf.argmin(component_sum, -1)
+        # # min_idx = tf.unravel_index(min_idx_reshaped, [self.som_dim[0],self.som_dim[1]])
+        # nearest_neuron = tf.gather(self.som,min_idx_reshaped)
+        # return nearest_neuron, min_idx_reshaped
 
 
     def loss_som(self):

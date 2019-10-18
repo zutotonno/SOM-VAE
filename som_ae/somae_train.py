@@ -104,7 +104,6 @@ with tf.Session() as sess:
     input_data = tf.keras.Input(shape=(input_length, input_channels, ), name='enc_input')
     h_1 = tf.keras.layers.LSTM(latent_dim, activation="relu", name='input2hid')(input_data)
     encoded_data = tf.keras.layers.Dense(encoder_hidden_size*latent_dim, activation="relu", name='hid2enc')(h_1)
-    
 
     nearest_neuron_layer = tf.keras.layers.Lambda(model.winning_unit)(encoded_data)
 
