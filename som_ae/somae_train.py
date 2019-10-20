@@ -5,7 +5,9 @@ import tensorflow as tf
 from somae_model import SOMAE
 import pandas as pd
 
-data_set = "/home/aritacco/SOM_AE/SOM-VAE/data/training_dataset.obj"
+# data_set = "/home/aritacco/SOM_AE/SOM-VAE/data/training_dataset.obj"
+dataset_train = pd.read_csv('../data/HAPT_Dataset/Train/X_train.txt', sep=' ', header=None)
+dataset_test = pd.read_csv('../data/HAPT_Dataset/Test/X_test.txt', sep=' ', header=None)
 
 
 def get_data_generator():
@@ -46,23 +48,26 @@ def get_data_generator():
                 yield images[i*batch_size:(i+1)*batch_size]
 
     return batch_generator
+# with open(data_set, 'rb') as som_dump:
+#         _dataset = pickle.load(som_dump)
+# dataset = _dataset['datasetNorm'].astype('float32')
+# data = dataset.reshape(-1,288*3,1)
 
 
+data_train = np.array(dataset_train)
+labels_train = np.array(dataset_train)
+data_val = np.array(dataset_test)
+labels_val = np.array(dataset_test)
+# numSamples = data.shape[0]
+# numTrainSamples = int(numSamples*0.75)
 
-with open(data_set, 'rb') as som_dump:
-        _dataset = pickle.load(som_dump)
-dataset = _dataset['datasetNorm'].astype('float32')
-data = dataset.reshape(-1,288*3,1)
-numSamples = data.shape[0]
-numTrainSamples = int(numSamples*0.75)
+# data_train = data[:numTrainSamples]
+# labels_train = data[:numTrainSamples]
+# data_val = data[numTrainSamples:numTrainSamples+10000]
+# labels_val = data[numTrainSamples:numTrainSamples+10000]
 
-data_train = data[:numTrainSamples]
-labels_train = data[:numTrainSamples]
-data_val = data[numTrainSamples:numTrainSamples+10000]
-labels_val = data[numTrainSamples:numTrainSamples+10000]
-
-input_length = 288
-input_channels = 3
+input_length = data_train.shape[1]
+input_channels = 1
 latent_dim = 64
 som_dim=[4,4]
 encoder_hidden_size= 16
