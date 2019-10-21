@@ -6,7 +6,7 @@ from tensorflow import keras
 
 
 class SOMAE:
-    def __init__(self, inputs, latent_dim=10, encoder_hidden_size = 64 , som_dim=[8,8], learning_rate=1e-4, decay_factor=0.95,
+    def __init__(self, inputs, latent_dim=10, encoder_hidden_size=64, som_dim=[8, 8], learning_rate=1e-4, decay_factor=0.95,
             input_length=288, input_channels=3, alpha=1., beta=1., gamma=1., tau=1.):
             self.inputs = inputs
             self.encoder_hidden_size = encoder_hidden_size
@@ -47,7 +47,7 @@ class SOMAE:
         component_sum = tf.reduce_sum(squared_distances, axis=-1)
         min_idx_reshaped = tf.argmin(component_sum, -1)
         # min_idx = tf.unravel_index(min_idx_reshaped, [self.som_dim[0],self.som_dim[1]])
-        nearest_neuron = tf.gather(self.som,min_idx_reshaped)
+        nearest_neuron = tf.gather(self.som, min_idx_reshaped)
         return nearest_neuron
 
 
@@ -74,22 +74,23 @@ class SOMAE:
     def compute_neighbors_embeddings(self):
         min_idx = self.compute_BMU
         min_idx_reshaped = tf.unravel_index(min_idx, self.som_dim[0], self.som_dim[1])
-        up_idx = tf.cond(min_idx_reshaped[0] > tf.constant(0), lambda: tf.subtract(min_idx_reshaped[0], 1), lambda: min_idx_reshaped[0])
-        bottom_idx = tf.cond(min_idx_reshaped[0] < self.som_dim[0], lambda: tf.add(min_idx_reshaped[0], 1), lambda: min_idx_reshaped[0])
-        left_idx = tf.cond(min_idx_reshaped[1] > tf.constant(0), lambda: tf.subtract(min_idx_reshaped[1], 1), lambda: min_idx_reshaped[1])
-        right_idx = tf.cond(min_idx_reshaped[1] < tf.constant(0), lambda: tf.add(min_idx_reshaped[1], 1), lambda: min_idx_reshaped[1])
 
-        up_idx_reshaped = tf.unravel_index(up_idx, self.som_dim[0], self.som_dim[1])
-        bottom_idx_reshaped = tf.unravel_index(bottom_idx, self.som_dim[0], self.som_dim[1])
-        left_idx_reshaped = tf.unravel_index(left_idx, self.som_dim[0], self.som_dim[1])
-        right_idx_reshaped = tf.unravel_index(right_idx, self.som_dim[0], self.som_dim[1])
+        up_idx = tf.cond(min_idx_reshaped[0] > tf.constant(0), lambda: tf.add(min_idx_reshaped, tf.constant([-1, 0])),
+                         lambda: min_idx_reshaped)
+        bottom_idx = tf.cond(min_idx_reshaped[0] < self.som_dim[0], lambda: tf.add(min_idx_reshaped, tf.constant([1, 0])),
+                             lambda: min_idx_reshaped)
+        left_idx = tf.cond(min_idx_reshaped[1] > tf.constant(0), lambda: tf.add(min_idx_reshaped, tf.constant([0, -1])),
+                           lambda: min_idx_reshaped)
+        right_idx = tf.cond(min_idx_reshaped[1] < self.som_dim[0], lambda: tf.add(min_idx_reshaped, tf.constant([0, 1])),
+                            lambda: min_idx_reshaped)
+
         som_reshaped = tf.reshape(self.som, [-1, self.som_dim[0], self.som_dim[1], self.latent_dim])
 
         nearest_neuron = tf.gather_nd(som_reshaped, min_idx_reshaped)
-        up_nearest_neuron = tf.gather(som_reshaped, up_idx_reshaped)
-        bottom_nearest_neuron = tf.gather(som_reshaped, bottom_idx_reshaped)
-        left_nearest_neuron = tf.gather(som_reshaped, left_idx_reshaped)
-        right_nearest_neuron = tf.gather(som_reshaped, right_idx_reshaped)
+        up_nearest_neuron = tf.gather_nd(som_reshaped, up_idx)
+        bottom_nearest_neuron = tf.gather_nd(som_reshaped, bottom_idx)
+        left_nearest_neuron = tf.gather_nd(som_reshaped, left_idx)
+        right_nearest_neuron = tf.gather_nd(som_reshaped, right_idx)
 
         som_neighbors = tf.stack([nearest_neuron, up_nearest_neuron, bottom_nearest_neuron, left_nearest_neuron,
                                   right_nearest_neuron], axis=1)
